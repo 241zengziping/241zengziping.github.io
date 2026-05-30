@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>241 主页</title>
+</head>
+<body>
+<h1>241 主页</h1>
+<p>MPI 等级：<strong id="mpi-level">读取中...</strong>
+   <button id="play-mpi" style="margin-left: 12px;">开始玩</button>
+</p>
+
+<p>充能增量页能量：<strong id="energy-level">读取中...</strong>
+   <button id="play-energy" style="margin-left: 12px;">开始玩</button>
+</p>
+
+<script>
+    (function() {
+        function getMPILevel() {
+            try {
+                let raw = localStorage.getItem("extensions.turbowarp.org/local-storage:Make Papers Incremental");
+                if (!raw) return "没有存档，请先玩一会。";
+                let full = JSON.parse(raw);
+                let data = full.data || full;
+                let paper = data["纸"];
+                if (paper === undefined) return "你是如何拥有undefined张纸的?";
+                let p = Number(paper);
+                if (isNaN(p) || p <= 0) return "你是如何拥有不是数字张纸的?";
+                let level = Math.floor(Math.log10(p) * 10);
+                return level + " 级 (" + p + " 纸)";
+            } catch(e) {
+                return "解析错误";
+            }
+        }
+
+        function getChargeEnergy() {
+    try {
+        let raw = localStorage.getItem("extensions.turbowarp.org/local-storage:充能增量页");
+        if (!raw) return "没有存档，请先玩一会。";
+        let full = JSON.parse(raw);
+        let data = full.data || full;
+        let energyLog = data["全局·能量"];
+        if (energyLog === undefined) return "你是如何拥有undefined能量的?";
+        let logVal = Number(energyLog);
+        if (isNaN(logVal)) return "你是如何拥有不是数字能量的?";
+        let exponent = Math.floor(logVal);
+        let mantissa = Math.pow(10, logVal - exponent);
+        let energyStr = mantissa.toFixed(4) + "e" + exponent;
+        return energyStr;
+    } catch(e) {
+        return "读取失败";
+    }
+}
+
+        function update() {
+            document.getElementById("mpi-level").innerText = getMPILevel();
+            document.getElementById("energy-level").innerText = getChargeEnergy();
+        }
+        
+document.getElementById("play-mpi").onclick = () => {
+    window.open("MPI.html", "_blank");
+};
+
+document.getElementById("play-energy").onclick = () => {
+    window.open("energy-incremental.html", "_blank");
+};
+
+        update();
+        setInterval(update, 1000);
+    })();
+</script>
+</body>
+</html>
